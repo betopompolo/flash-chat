@@ -5,8 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/ui/styles.dart';
 
-final Firestore _fireStore = Firestore.instance;
-final String messagesCollection = 'messages';
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class ChatScreen extends StatefulWidget {
