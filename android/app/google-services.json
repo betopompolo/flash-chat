@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "882721988346",
+    "firebase_url": "https://flash-chat-f103f.firebaseio.com",
+    "project_id": "flash-chat-f103f",
+    "storage_bucket": "flash-chat-f103f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:882721988346:android:a4d110d6472dc6901d3343",
+        "android_client_info": {
+          "package_name": "co.betopompolo.flash_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "882721988346-pj11cpk6ohnc1m5i8iqodk1ic38558ap.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9euPxBSEg9DwhHM2MqhIbXBUPXvvABX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "882721988346-pj11cpk6ohnc1m5i8iqodk1ic38558ap.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
