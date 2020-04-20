@@ -6,21 +6,24 @@ import 'package:flash_chat/bloc/message.dart';
 import 'package:flash_chat/resources/chat_repository.dart';
 
 class ChatMessagesBloc with Bloc {
-  final _chatMessageController = StreamController<List<Message>>();
   final _chatRepository = ChatRepository();
 
-  ChatMessagesBloc(Chat chat) {
-    _setChatMessagesStream(chat);
+  Stream<List<Message>> getChatMessagesStream(Chat chat) {
+    return _chatRepository.getMessagesStream(chat).map((messages) {
+      messages.sort(_sortBySendAt);
+      return messages;
+    });
   }
 
-  Stream<List<Message>> get stream => _chatMessageController.stream;
+  int _sortBySendAt(Message message1, Message message2) {
+    return message1.sentAt.isAfter(message2.sentAt) ? 1 : -1;
+  }
 
-  _setChatMessagesStream(Chat chat) {
-    _chatMessageController.addStream(_chatRepository.getMessagesStream(chat));
+  Future<Message> sendMessage(Message message) {
+    return _chatRepository.addMessage(message);
   }
 
   @override
   void dispose() {
-    _chatMessageController.close();
   }
 }

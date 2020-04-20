@@ -4,8 +4,8 @@ class Message {
   final String chatId;
   final String text;
   final DateTime sentAt;
-  final User to;
-  final User from;
+  final User receiver;
+  final User sender;
 
-  Message({this.chatId, this.text, this.to, this.from, this.sentAt});
+  Message({this.chatId, this.text, this.receiver, this.sender, this.sentAt});
 }

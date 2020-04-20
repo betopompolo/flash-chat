@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
@@ -16,16 +19,19 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  final _auth = FirebaseAuth.instance;
+  final _userBloc = UserBloc();
+  StreamSubscription<User> _subscription;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _auth.currentUser().then((user) {
-      if (user != null) {
-        Navigator.pushNamed(context, ChatScreen.name);
-      }
-    });
+  void initState() {
+    super.initState();
+    _subscription = _userBloc.authUserStream.listen(_handleAuthChange);
+  }
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -78,6 +84,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
       ),
     );
+  }
+
+  _handleAuthChange(User user) {
+    if (user == null) {
+      return;
+    }
+
+    Navigator.pushNamed(context, ChatScreen.name);
   }
 }
 

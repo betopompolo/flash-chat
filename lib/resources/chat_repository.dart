@@ -6,23 +6,18 @@ import 'package:flash_chat/resources/message_mapper.dart';
 class ChatRepository {
   Firestore get _firestore => Firestore.instance;
   final _messagesCollection = 'messages';
-      
+
+
   Stream<List<Message>> getMessagesStream(Chat chat) {
-    return _firestore.collection(_messagesCollection).snapshots().map((snapshot) {
-      final List<Message> messages = snapshot.documents.map(MessageMapper.mapDocumentSnapshot);
-      
-      return messages.where((message) => message.chatId == chat.id).toList();
-    });
+    return _firestore
+        .collection(_messagesCollection)
+        .where('chat_id', isEqualTo: chat.id)
+        .snapshots()
+        .map(MessageMapper.mapQuerySnapshot);
   }
 
   Future<Message> addMessage(Message message) async {
-    await _firestore.collection(_messagesCollection).add({
-      'chat_id': message.chatId,
-      'send_timestamp': Timestamp.fromDate(message.sentAt),
-      'to': message.to.email,
-      'from': message.from.email,
-      'text': message.text,
-    });
+    await _firestore.collection(_messagesCollection).add(MessageMapper.mapToFirebase(message));
 
     return message;
   }

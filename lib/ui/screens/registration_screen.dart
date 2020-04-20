@@ -1,4 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
@@ -15,10 +16,10 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  String _name;
-  String _email;
+  final _userBloc = UserBloc();
+  User _user = User('', '');
   String _password;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
 
   final _formKey = GlobalKey<FormState>();
   FocusNode _emailFieldFocusNode;
@@ -63,7 +64,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     TextFormField(
                       keyboardType: TextInputType.text,
                       onChanged: (value) {
-                        _name = value;
+                        _user.displayName = value;
                       },
                       decoration: kTextFieldDecoration.copyWith(
                         hintText: 'Enter your display name',
@@ -82,7 +83,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       keyboardType: TextInputType.emailAddress,
                       focusNode: _emailFieldFocusNode,
                       onChanged: (value) {
-                        _email = value;
+                        _user.email = value;
                       },
                       autocorrect: false,
                       decoration: kTextFieldDecoration.copyWith(
@@ -142,23 +143,13 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _isLoading = true;
     });
     try {
-      await _register();
-      Navigator.pushNamed(context, ChatScreen.name);
+      await _userBloc.registerUser(_user, _password);
+      Navigator.popAndPushNamed(context, ChatScreen.name);
     } catch (e) {
       print(e);
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  Future<void> _register() {
-    final userInfo = UserUpdateInfo();
-    userInfo.displayName = _name;
-
-    return _auth.createUserWithEmailAndPassword(
-      email: _email,
-      password: _password,
-    ).then((result) => result.user.updateProfile(userInfo));
   }
 }

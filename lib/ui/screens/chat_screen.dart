@@ -1,108 +1,121 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/bloc/chat.dart';
+import 'package:flash_chat/bloc/chat_messages_bloc.dart';
+import 'package:flash_chat/bloc/message.dart';
+import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/message_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/ui/styles.dart';
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
 
 class ChatScreen extends StatefulWidget {
   static final String name = 'ChatScreen';
+
+  // TODO: Receive a chat via props
+  final Chat chat = Chat('rdjPM4koiGffOxoa5THd', DateTime.now());
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  FirebaseUser _user;
-  String _textMessage;
-  final messageTextFieldController = TextEditingController();
+  final _messageTextFieldController = TextEditingController();
+  final _chatMessagesBloc = ChatMessagesBloc();
+  final _userBloc = UserBloc();
+  Stream<List<Message>> _chatMessageStream;
 
   @override
   void initState() {
     super.initState();
-
-    _auth.currentUser().then((user) {
-      setState(() {
-        _user = user;  
-      });
-    });
+    _chatMessageStream = _chatMessagesBloc.getChatMessagesStream(widget.chat);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            _showLogoutDialog();
-          },
-        ),
-        title: Text('${_user?.displayName}'),
-        backgroundColor: Colors.lightBlueAccent,
-      ),
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Expanded(
-              child: MessageList(
-                loggedUser: _user,
-              ),
+    return StreamBuilder<User>(
+      stream: _userBloc.authUserStream,
+      initialData: User('', ''),
+      builder: (context, snapshot) {
+        User user = snapshot.data;
+
+        if (user == null) {
+          print('nothing here :(');
+          return Container();
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(Icons.close),
+              onPressed: _showLogoutDialog,
             ),
-            Container(
-              decoration: kMessageContainerDecoration,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Expanded(
-                    child: TextField(
-                      onChanged: (value) {
-                        _textMessage = value;
-                      },
-                      decoration: kMessageTextFieldDecoration,
-                      controller: messageTextFieldController,
-                    ),
+            title: Text('${user.displayName}'),
+            backgroundColor: Colors.lightBlueAccent,
+          ),
+          body: SafeArea(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Expanded(
+                  child: MessageList(
+                    loggedUser: user,
+                    messageStream: _chatMessageStream,
                   ),
-                  FlatButton(
-                    onPressed: () {
-                      _sendMessage();
-                      messageTextFieldController.clear();
-                    },
-                    child: Text(
-                      'Send',
-                      style: kSendButtonTextStyle,
-                    ),
+                ),
+                Container(
+                  decoration: kMessageContainerDecoration,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Expanded(
+                        child: TextField(
+                          decoration: kMessageTextFieldDecoration,
+                          controller: _messageTextFieldController,
+                          textCapitalization: TextCapitalization.sentences,
+                          textInputAction: TextInputAction.send,
+                          onSubmitted: (value) => _sendMessage(user),
+                        ),
+                      ),
+                      FlatButton(
+                        onPressed: () => _sendMessage(user),
+                        child: Text(
+                          'Send',
+                          style: kSendButtonTextStyle,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   _logout() {
-    _auth.signOut();
+    _userBloc.logout();
     Navigator.pop(context);
   }
 
-  _sendMessage() {
-    _fireStore.collection(messagesCollection).add({
-      'sender': _user.email,
-      'text': _textMessage,
-    });
+  _sendMessage(User loggedUser) async {
+    final message = Message(
+      text: _messageTextFieldController.text,
+      sender: loggedUser,
+      sentAt: DateTime.now(),
+      receiver: User('Fabio', 'f.nassu@gmail.com'), //TODO: Remove
+      chatId: widget.chat.id,
+    );
+    _messageTextFieldController.clear();
+    await _chatMessagesBloc.sendMessage(message);
   }
 
   _showLogoutDialog() {
     final content = Text('Do you really want to logout?');
-    final dismissDialog = () {
-      Navigator.pop(context);
-    };
+    final dismissDialog = () => Navigator.pop(context);
 
     showDialog(
       context: context,
@@ -127,23 +140,40 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 class MessageList extends StatelessWidget {
-  final FirebaseUser loggedUser;
+  final User loggedUser;
+  final Stream<List<Message>> messageStream;
 
   MessageList({
     this.loggedUser,
+    this.messageStream,
   });
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: _fireStore.collection(messagesCollection).snapshots(),
+    return StreamBuilder<List<Message>>(
+      stream: messageStream,
       builder: (context, snapshot) {
-        if (snapshot.hasData == false) {
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Text('We could not retrieve the messages :('),
+          );
+        }
+
+        if (isLoading) {
           return Center(
             child: CircularProgressIndicator(),
           );
         }
-        final List<DocumentSnapshot> messages = snapshot.data.documents.reversed.toList();
+
+        final List<Message> messages = snapshot.data.reversed.toList();
+
+        if (messages.isEmpty) {
+          return Center(
+            child: Text('Nothing to show here...'),
+          );
+        }
 
         return ListView.separated(
           itemBuilder: (context, index) => _buildMessage(messages[index]),
@@ -156,11 +186,11 @@ class MessageList extends StatelessWidget {
     );
   }
 
-  Widget _buildMessage(DocumentSnapshot message) {
-    bool isMe = loggedUser.email == message.data['sender'];
+  Widget _buildMessage(Message message) {
+    bool isMe = loggedUser.email == message.sender.email;
     
     return MessageBubble(
-      text: message.data['text'],
+      text: message.text,
       backgroundColor: Colors.lightBlueAccent,
       isMe: isMe,
     );

@@ -1,4 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
@@ -16,20 +17,27 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _email = '';
+  final _userBloc = UserBloc();
+
+  User _user = User('', '');
   String _password = '';
+
   bool _loadingLogin = false;
   String _errorMessage;
 
   final _formKey = GlobalKey<FormState>();
   FocusNode _passwordFieldFocusNode;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   @override
   void initState() {
     super.initState();
     _passwordFieldFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _passwordFieldFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -87,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       autocorrect: false,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (value) {
-                        _email = value;
+                        _user.email = value;
                       },
                       validator:
                           TextFormFieldValidator.email('Type a valid email'),
@@ -132,12 +140,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _passwordFieldFocusNode.dispose();
-    super.dispose();
-  }
-
   void _login() async {
     if (_formKey.currentState.validate() == false || _loadingLogin) {
       return;
@@ -147,8 +149,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _loadingLogin = true;
       });
-      await _auth.signInWithEmailAndPassword(
-          email: _email, password: _password);
+      await _userBloc.login(_user, _password);
       Navigator.popAndPushNamed(context, ChatScreen.name);
     } catch (error) {
       _showLoginErrorMessage(error.message);
@@ -173,6 +174,5 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     );
-
   }
 }
