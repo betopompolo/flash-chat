@@ -3,7 +3,7 @@ import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
-import 'package:flash_chat/ui/screens/chat_screen.dart';
+import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -19,7 +19,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _userBloc = UserBloc();
 
-  User _user = User('', '');
+  User _user = User();
   String _password = '';
 
   bool _loadingLogin = false;
@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _loadingLogin = true;
       });
       await _userBloc.login(_user, _password);
-      Navigator.popAndPushNamed(context, ChatScreen.name);
+      Navigator.popAndPushNamed(context, ChatListScreen.name);
     } catch (error) {
       _showLoginErrorMessage(error.message);
       setState(() {

@@ -9,11 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:flash_chat/ui/styles.dart';
 
 
+class ChatScreenArgs {
+  final Chat chat;
+
+  ChatScreenArgs({
+    this.chat,
+  });
+}
+
 class ChatScreen extends StatefulWidget {
   static final String name = 'ChatScreen';
-
-  // TODO: Receive a chat via props
-  final Chat chat = Chat('rdjPM4koiGffOxoa5THd', DateTime.now());
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -23,35 +28,39 @@ class _ChatScreenState extends State<ChatScreen> {
   final _messageTextFieldController = TextEditingController();
   final _chatMessagesBloc = ChatMessagesBloc();
   final _userBloc = UserBloc();
+
   Stream<List<Message>> _chatMessageStream;
 
+  ChatScreenArgs get _screenArgs => ModalRoute.of(context).settings.arguments;
+  User get _receiver => _screenArgs.chat.participants[0];
+
   @override
-  void initState() {
-    super.initState();
-    _chatMessageStream = _chatMessagesBloc.getChatMessagesStream(widget.chat);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_chatMessageStream == null) {
+      _chatMessageStream = _chatMessagesBloc.getChatMessagesStream(_screenArgs.chat);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_receiver == null) {
+      return Container();
+    }
+
     return StreamBuilder<User>(
       stream: _userBloc.authUserStream,
-      initialData: User('', ''),
+      initialData: User(),
       builder: (context, snapshot) {
         User user = snapshot.data;
 
         if (user == null) {
-          print('nothing here :(');
           return Container();
         }
 
         return Scaffold(
           appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(Icons.close),
-              onPressed: _showLogoutDialog,
-            ),
-            title: Text('${user.displayName}'),
-            backgroundColor: Colors.lightBlueAccent,
+            title: Text('${_receiver.displayName}'),
           ),
           body: SafeArea(
             child: Column(
@@ -96,46 +105,16 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  _logout() {
-    _userBloc.logout();
-    Navigator.pop(context);
-  }
-
   _sendMessage(User loggedUser) async {
     final message = Message(
       text: _messageTextFieldController.text,
       sender: loggedUser,
       sentAt: DateTime.now(),
-      receiver: User('Fabio', 'f.nassu@gmail.com'), //TODO: Remove
-      chatId: widget.chat.id,
+      receiver: _receiver,
+      chatId: _screenArgs.chat.id,
     );
     _messageTextFieldController.clear();
     await _chatMessagesBloc.sendMessage(message);
-  }
-
-  _showLogoutDialog() {
-    final content = Text('Do you really want to logout?');
-    final dismissDialog = () => Navigator.pop(context);
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        content: content,
-        actions: <Widget>[
-          FlatButton(
-            child: Text('No'),
-            onPressed: dismissDialog,
-          ),
-          FlatButton(
-            child: Text('Yes'),
-            onPressed: () async {
-              await _logout();
-              dismissDialog();
-            },
-          ),
-        ],
-      ),
-    );
   }
 }
 

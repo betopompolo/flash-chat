@@ -1,20 +1,24 @@
 import 'dart:ui';
 
+import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
 import 'package:flash_chat/ui/screens/login_screen.dart';
+import 'package:flash_chat/ui/screens/new_chat_screen.dart';
 import 'package:flash_chat/ui/screens/registration_screen.dart';
 import 'package:flash_chat/ui/screens/welcome_screen.dart';
 import 'package:flash_chat/ui/theme.dart';
 import 'package:flutter/material.dart';
 
-void main() => runApp(FlashChat());
-
-class FlashChat extends StatefulWidget {
-  @override
-  _FlashChatState createState() => _FlashChatState();
+void main() {
+  runApp(FlashChatApp());
 }
 
-class _FlashChatState extends State<FlashChat> with WidgetsBindingObserver {
+class FlashChatApp extends StatefulWidget {
+  @override
+  _FlashChatAppState createState() => _FlashChatAppState();
+}
+
+class _FlashChatAppState extends State<FlashChatApp> with WidgetsBindingObserver {
   ThemeData _appTheme;
 
   @override
@@ -40,6 +44,8 @@ class _FlashChatState extends State<FlashChat> with WidgetsBindingObserver {
         LoginScreen.name: (context) => LoginScreen(),
         RegistrationScreen.name: (context) => RegistrationScreen(),
         WelcomeScreen.name: (context) => WelcomeScreen(),
+        NewChatScreen.name: (context) => NewChatScreen(),
+        ChatListScreen.name: (context) => ChatListScreen(),
       },
     );
   }

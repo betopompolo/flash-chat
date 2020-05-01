@@ -17,7 +17,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _userBloc = UserBloc();
-  User _user = User('', '');
+  User _user = User();
   String _password;
 
 
@@ -72,7 +72,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       validator: TextFormFieldValidator.empty('This field cannot be empty'),
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (value) {
-                        print('name submitted! $_emailFieldFocusNode');
                         FocusScope.of(context).requestFocus(_emailFieldFocusNode);
                       },
                       autofocus: true,
@@ -146,7 +145,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       await _userBloc.registerUser(_user, _password);
       Navigator.popAndPushNamed(context, ChatScreen.name);
     } catch (e) {
-      print(e);
       setState(() {
         _isLoading = false;
       });

@@ -6,8 +6,8 @@ class MessageMapper {
 
   static Message mapDocumentSnapshot(DocumentSnapshot snapshot) {
     final Timestamp timestamp = snapshot.data['send_timestamp'];
-    final sender = User('', snapshot.data['sender_email']);
-    final receiver = User('', snapshot.data['receiver_email']);
+    final sender = User(email: snapshot.data['sender_email']);
+    final receiver = User(email: snapshot.data['receiver_email']);
 
     return Message(
       chatId: snapshot.data['chat_id'],
