@@ -48,6 +48,10 @@ class UserBloc with Bloc {
     _searchStreamController.sink.add(searchResults);
   }
 
+  Future<User> getUserById(String userId) {
+    return _userRepository.getById(userId);
+  }
+
   @override
   void dispose() {
     _authUserStreamSubscription.cancel();

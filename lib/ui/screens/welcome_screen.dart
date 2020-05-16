@@ -38,31 +38,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
+        padding: EdgeInsets.symmetric(horizontal: 12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Hero(
-                  tag: AppLogo.tag,
-                  child: AppLogo(
-                    height: 60.0,
-                  ),
-                ),
-                TypewriterAnimatedTextKit(
-                  text: ['Flash Chat'],
-                  textStyle: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  speed: Duration(
-                    milliseconds: 500,
-                  ),
-                ),
-              ],
-            ),
+            _buildAppTitle(),
             SizedBox(
               height: 48.0,
             ),
@@ -86,16 +67,39 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  Widget _buildAppTitle() {
+    return Row(
+      children: <Widget>[
+        Hero(
+          tag: AppLogo.tag,
+          child: AppLogo(
+            height: 60.0,
+          ),
+        ),
+        Expanded(
+          child: TypewriterAnimatedTextKit(
+            text: ['Flash Chat'],
+            textStyle: TextStyle(
+              fontSize: 45.0,
+              fontWeight: FontWeight.w900,
+            ),
+            speed: Duration(
+              milliseconds: 500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   _handleAuthChange(User user) {
     if (user == null) {
       return;
     }
 
     Navigator.pushNamed(
-      context, 
+      context,
       ChatListScreen.name,
     );
   }
 }
-
-

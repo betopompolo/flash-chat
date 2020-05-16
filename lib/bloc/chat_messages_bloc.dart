@@ -4,25 +4,31 @@ import 'package:flash_chat/bloc/bloc.dart';
 import 'package:flash_chat/bloc/chat.dart';
 import 'package:flash_chat/bloc/message.dart';
 import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/resources/chat_repository.dart';
-import 'package:flash_chat/resources/user_repository.dart';
 
 class ChatMessagesBloc with Bloc {
   final _chatRepository = ChatRepository();
-  final _userRepository = UserRepository();
+  final _userBloc = UserBloc();
 
   final _chatStreamController = StreamController<List<Chat>>();
   get chatStream => _chatStreamController.stream;
   StreamSubscription<List<Chat>> _chatStreamListener;
 
+  StreamSubscription<User> _loggedUserStreamListener;
+  User _loggedUser;
+
+
   ChatMessagesBloc() {
     _chatStreamListener = _chatRepository.listChatStream().listen(_handleChatStream);
+    _loggedUserStreamListener = _userBloc.authUserStream.listen((user) => _loggedUser = user);
   }
 
   @override
   void dispose() {
-    _chatStreamController.close();
     _chatStreamListener.cancel();
+    _chatStreamController.close();
+    _loggedUserStreamListener.cancel();
   }
 
   _handleChatStream(List<Chat> chats) async {
@@ -43,7 +49,7 @@ class ChatMessagesBloc with Bloc {
   }
 
   List<Future<User>> _getChatParticipantsDetails(Chat chat) {
-    return chat?.participants?.map((user) => _userRepository.getById(user.id))?.toList();
+    return chat?.participants?.map((user) => _userBloc.getUserById(user.id))?.toList();
   }
 
   int _sortChatsByCreatedAt(Chat chat1, Chat chat2) {
@@ -58,16 +64,13 @@ class ChatMessagesBloc with Bloc {
     return _chatRepository.addMessage(message);
   }
 
-  Future<Chat> createChat(List<User> participants, { addLoggedUserInParticipants = true }) async {
+  Future<Chat> createChat(List<User> participants, { includeLoggedUser = true }) async {
     if (participants.isEmpty) {
       return null;
     }
 
-    if (addLoggedUserInParticipants) {
-      final loggedUser = await _userRepository.getLoggedUser();
-      if (loggedUser != null) {
-        participants.add(loggedUser);
-      }
+    if (includeLoggedUser && _loggedUser != null) {
+      participants.add(_loggedUser);
     }
 
     Chat newChat = Chat(
