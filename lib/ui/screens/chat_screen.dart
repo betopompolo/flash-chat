@@ -8,7 +8,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flash_chat/ui/styles.dart';
 
-
 class ChatScreenArgs {
   final Chat chat;
 
@@ -29,79 +28,98 @@ class _ChatScreenState extends State<ChatScreen> {
   final _chatMessagesBloc = ChatMessagesBloc();
   final _userBloc = UserBloc();
 
-  Stream<List<Message>> _chatMessageStream;
-
   ChatScreenArgs get _screenArgs => ModalRoute.of(context).settings.arguments;
   User get _receiver => _screenArgs.chat.participants[0];
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_chatMessageStream == null) {
-      _chatMessageStream = _chatMessagesBloc.getChatMessagesStream(_screenArgs.chat);
-    }
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      _chatMessagesBloc.setChatMessage(_screenArgs.chat);
+    });
+  }
+
+  @override
+  void dispose() {
+    _chatMessagesBloc.dispose();
+    _userBloc.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_receiver == null) {
-      return Container();
+    final loggedUser = _userBloc.loggedUser;
+
+    if (_receiver == null || loggedUser == null) {
+      return Scaffold(
+        body: Center(
+          child: Text('Something went wrong 🤔'),
+        ),
+      );
     }
 
-    return StreamBuilder<User>(
-      stream: _userBloc.authUserStream,
-      initialData: User(),
-      builder: (context, snapshot) {
-        User user = snapshot.data;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('${_receiver.displayName}'),
+      ),
+      body: SafeArea(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Expanded(
+              child: StreamBuilder<List<Message>>(
+                stream: _chatMessagesBloc.messageStream,
+                builder: (context, snapshot) {
+                  final isLoading = snapshot.connectionState == ConnectionState.waiting;
+                  final messages = snapshot.data;
 
-        if (user == null) {
-          return Container();
-        }
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Text('We could not retrieve the messages :('),
+                    );
+                  }
 
-        return Scaffold(
-          appBar: AppBar(
-            title: Text('${_receiver.displayName}'),
-          ),
-          body: SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Expanded(
-                  child: MessageList(
-                    loggedUser: user,
-                    messageStream: _chatMessageStream,
-                  ),
-                ),
-                Container(
-                  decoration: kMessageContainerDecoration,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          decoration: kMessageTextFieldDecoration,
-                          controller: _messageTextFieldController,
-                          textCapitalization: TextCapitalization.sentences,
-                          textInputAction: TextInputAction.send,
-                          onSubmitted: (value) => _sendMessage(user),
-                        ),
-                      ),
-                      FlatButton(
-                        onPressed: () => _sendMessage(user),
-                        child: Text(
-                          'Send',
-                          style: kSendButtonTextStyle,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                  if (isLoading) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  return MessageList(
+                    loggedUser: _userBloc.loggedUser,
+                    messages: messages,
+                  );
+                },
+              )
             ),
-          ),
-        );
-      },
+            Container(
+              decoration: kMessageContainerDecoration,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Expanded(
+                    child: TextField(
+                      decoration: kMessageTextFieldDecoration,
+                      controller: _messageTextFieldController,
+                      textCapitalization: TextCapitalization.sentences,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (value) => _sendMessage(_userBloc.loggedUser),
+                    ),
+                  ),
+                  FlatButton(
+                    onPressed: () => _sendMessage(_userBloc.loggedUser),
+                    child: Text(
+                      'Send',
+                      style: kSendButtonTextStyle,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -120,54 +138,37 @@ class _ChatScreenState extends State<ChatScreen> {
 
 class MessageList extends StatelessWidget {
   final User loggedUser;
-  final Stream<List<Message>> messageStream;
+  final List<Message> messages;
 
   MessageList({
     this.loggedUser,
-    this.messageStream,
+    this.messages,
   });
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<Message>>(
-      stream: messageStream,
-      builder: (context, snapshot) {
-        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+    final List<Message> displayMessages = messages.reversed.toList();
+    
+    if (displayMessages.isEmpty) {
+      return Center(
+        child: Text('Nothing to show here...'),
+      );
+    }
 
-        if (snapshot.hasError) {
-          return Center(
-            child: Text('We could not retrieve the messages :('),
-          );
-        }
-
-        if (isLoading) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        final List<Message> messages = snapshot.data.reversed.toList();
-
-        if (messages.isEmpty) {
-          return Center(
-            child: Text('Nothing to show here...'),
-          );
-        }
-
-        return ListView.separated(
-          itemBuilder: (context, index) => _buildMessage(messages[index]),
-          separatorBuilder: (context, index) => SizedBox(height: 4.0,),
-          itemCount: messages.length,
-          padding: EdgeInsets.all(8.0),
-          reverse: true,
-        );
-      },
+    return ListView.separated(
+      itemBuilder: (context, index) => _buildMessage(displayMessages[index]),
+      separatorBuilder: (context, index) => SizedBox(
+        height: 4.0,
+      ),
+      itemCount: displayMessages.length,
+      padding: EdgeInsets.all(8.0),
+      reverse: true,
     );
   }
 
   Widget _buildMessage(Message message) {
     bool isMe = loggedUser.email == message.sender.email;
-    
+
     return MessageBubble(
       text: message.text,
       backgroundColor: Colors.lightBlueAccent,
@@ -175,4 +176,3 @@ class MessageList extends StatelessWidget {
     );
   }
 }
-

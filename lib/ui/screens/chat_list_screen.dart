@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flash_chat/bloc/chat.dart';
 import 'package:flash_chat/bloc/chat_messages_bloc.dart';
+import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
 import 'package:flash_chat/ui/screens/new_chat_screen.dart';
@@ -16,6 +19,22 @@ class ChatListScreen extends StatefulWidget {
 class _ChatListScreenState extends State<ChatListScreen> {
   final _userBloc = UserBloc();
   final _chatBloc = ChatMessagesBloc();
+  StreamSubscription<User> _loggedUserSub;
+  User _loggedUser;
+
+  @override
+  void initState() {
+    _loggedUserSub = _userBloc.authUserStream.listen((user) => _loggedUser = user);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _loggedUserSub.cancel();
+    _chatBloc.dispose();
+    _userBloc.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +82,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 child: ListView.separated(
                   itemBuilder: (context, index) {
                     final chat = chats[index];
-                    final displayUser = chat.participantsWithoutLoggedUser[0];
+                    final displayUser = _getDisplayUser(chat);
 
                     return ListTile(
                       title: Text(displayUser.displayName),
@@ -83,6 +102,14 @@ class _ChatListScreenState extends State<ChatListScreen> {
         },
       ),
     );
+  }
+
+  User _getDisplayUser(Chat chat) {
+    final chatParticipants = List<User>.from(chat.participants);
+    print('Logged user is null? ${_loggedUser == null}');
+    chatParticipants.removeWhere((participant) => _loggedUser.id == participant.id);
+
+    return chatParticipants.isEmpty ? null : chatParticipants.first;
   }
 
   _showLogoutDialog() {

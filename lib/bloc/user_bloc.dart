@@ -14,16 +14,21 @@ class UserBloc with Bloc {
   final _searchStreamController = StreamController<List<User>>();
   Stream<List<User>> get searchStream =>_searchStreamController.stream;
 
+  User _loggedUser;
+  User get loggedUser => _loggedUser;
+
   UserBloc() {
     _authUserStreamSubscription = _userRepository.getAuthUserStream().listen(_handleAuthUserStream);
   }
 
   _handleAuthUserStream(User authUser) async {
     if (authUser == null) {
+      _loggedUser = null;
       return;
     }
 
     final user = await _userRepository.getByEmail(authUser.email);
+    _loggedUser = user;
     _authUserController.sink.add(user);
   }
 

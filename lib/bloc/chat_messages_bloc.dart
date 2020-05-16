@@ -15,20 +15,20 @@ class ChatMessagesBloc with Bloc {
   get chatStream => _chatStreamController.stream;
   StreamSubscription<List<Chat>> _chatStreamListener;
 
-  StreamSubscription<User> _loggedUserStreamListener;
-  User _loggedUser;
-
+  final _chatMessageStreamController = StreamController<List<Message>>();
+  get messageStream => _chatMessageStreamController.stream.asBroadcastStream();
+  StreamSubscription<List<Message>> _chatMessageSubscription;
 
   ChatMessagesBloc() {
     _chatStreamListener = _chatRepository.listChatStream().listen(_handleChatStream);
-    _loggedUserStreamListener = _userBloc.authUserStream.listen((user) => _loggedUser = user);
   }
 
   @override
   void dispose() {
+    _chatMessageSubscription.cancel();
     _chatStreamListener.cancel();
     _chatStreamController.close();
-    _loggedUserStreamListener.cancel();
+    _chatMessageStreamController.close();
   }
 
   _handleChatStream(List<Chat> chats) async {
@@ -41,10 +41,14 @@ class ChatMessagesBloc with Bloc {
     _chatStreamController.sink.add(chats);
   }
 
-  Stream<List<Message>> getChatMessagesStream(Chat chat) {
-    return _chatRepository.getMessagesStream(chat).map((messages) {
+  setChatMessage(Chat chat) {
+    if (_chatMessageSubscription != null) {
+      _chatMessageSubscription.cancel();
+    }
+
+    _chatMessageSubscription = _chatRepository.getMessagesStream(chat).listen((messages) { 
       messages.sort(_sortMessagesBySendAt);
-      return messages;
+      _chatMessageStreamController.sink.add(messages);
     });
   }
 
@@ -69,8 +73,8 @@ class ChatMessagesBloc with Bloc {
       return null;
     }
 
-    if (includeLoggedUser && _loggedUser != null) {
-      participants.add(_loggedUser);
+    if (includeLoggedUser && _userBloc.loggedUser != null) {
+      participants.add(_userBloc.loggedUser);
     }
 
     Chat newChat = Chat(

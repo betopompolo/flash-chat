@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: <Widget>[
                     Text(
                       _errorMessage ?? '',
-                      style: Theme.of(context).textTheme.body2.copyWith(
+                      style: Theme.of(context).textTheme.bodyText1.copyWith(
                         color: Theme.of(context).errorColor,
                       ),
                       textAlign: TextAlign.center,
