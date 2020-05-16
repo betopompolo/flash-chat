@@ -1,6 +1,7 @@
 import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
 import 'package:flash_chat/ui/screens/chat_list_screen.dart';
@@ -17,8 +18,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _userBloc = UserBloc();
-
   User _user = User();
   String _password = '';
 
@@ -119,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       textInputAction: TextInputAction.done,
                       focusNode: _passwordFieldFocusNode,
-                      onFieldSubmitted: (value) => _login(),
+                      onFieldSubmitted: (value) => _login(context),
                     ),
                   ],
                 ),
@@ -129,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               PrimaryButton(
                 text: 'Log In',
-                onTap: _login,
+                onTap: () => _login(context),
                 color: Theme.of(context).primaryColor,
                 loading: _loadingLogin,
               ),
@@ -140,7 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _login() async {
+  void _login(BuildContext context) async {
     if (_formKey.currentState.validate() == false || _loadingLogin) {
       return;
     }
@@ -149,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _loadingLogin = true;
       });
-      await _userBloc.login(_user, _password);
+      await BlocProvider.of<UserBloc>(context).login(_user, _password);
       Navigator.popAndPushNamed(context, ChatListScreen.name);
     } catch (error) {
       _showLoginErrorMessage(error.message);

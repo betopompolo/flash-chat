@@ -2,6 +2,7 @@ import 'package:flash_chat/bloc/chat.dart';
 import 'package:flash_chat/bloc/chat_messages_bloc.dart';
 import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/bloc/user_bloc.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
 import 'package:flash_chat/ui/styles.dart';
 import 'package:flutter/material.dart';
@@ -50,12 +51,12 @@ class UserSearch extends StatefulWidget {
 }
 
 class _UserSearchState extends State<UserSearch> {
-  final _userBloc = UserBloc();
   final _searchTextFieldController = TextEditingController();
   bool _hideSearchProgress = true;
 
   @override
   Widget build(BuildContext context) {
+    final userBloc = BlocProvider.of<UserBloc>(context);
     return Padding(
       padding: EdgeInsets.all(8.0),
       child: Column(
@@ -69,7 +70,7 @@ class _UserSearchState extends State<UserSearch> {
                   _hideSearchProgress = false;
                 });
               }
-              _userBloc.search(User(
+              userBloc.search(User(
                 displayName: _searchTextFieldController.text,
                 email: _searchTextFieldController.text,
               ));
@@ -79,7 +80,7 @@ class _UserSearchState extends State<UserSearch> {
           ),
           Expanded(
             child: StreamBuilder<List<User>>(
-                stream: _userBloc.searchStream,
+                stream: userBloc.searchStream,
                 initialData: [],
                 builder: (context, snapshot) {
                   List<User> searchResults = snapshot.data;
@@ -125,12 +126,6 @@ class _UserSearchState extends State<UserSearch> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _userBloc.dispose();
-    super.dispose();
   }
 
   _handleUserTap(User user) {

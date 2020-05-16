@@ -1,6 +1,7 @@
 import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
@@ -16,7 +17,6 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  final _userBloc = UserBloc();
   User _user = User();
   String _password;
 
@@ -106,7 +106,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                       validator: TextFormFieldValidator.empty('Type your password'),
                       textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (value) => _handleRegisterSubmit(),
+                      onFieldSubmitted: (value) => _handleRegisterSubmit(context),
                     ),
                   ],
                 ),
@@ -134,7 +134,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  _handleRegisterSubmit() async {
+  _handleRegisterSubmit(BuildContext context) async {
     if (_formKey.currentState.validate() == false || _isLoading) {
       return;
     }
@@ -142,7 +142,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _isLoading = true;
     });
     try {
-      await _userBloc.registerUser(_user, _password);
+      await BlocProvider.of<UserBloc>(context).registerUser(_user, _password);
       Navigator.popAndPushNamed(context, ChatScreen.name);
     } catch (e) {
       setState(() {

@@ -3,6 +3,7 @@ import 'package:flash_chat/bloc/chat_messages_bloc.dart';
 import 'package:flash_chat/bloc/message.dart';
 import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/bloc/user_bloc.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/message_bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,6 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _messageTextFieldController = TextEditingController();
   final _chatMessagesBloc = ChatMessagesBloc();
-  final _userBloc = UserBloc();
 
   ChatScreenArgs get _screenArgs => ModalRoute.of(context).settings.arguments;
   User get _receiver => _screenArgs.chat.participants[0];
@@ -42,15 +42,14 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     _chatMessagesBloc.dispose();
-    _userBloc.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final loggedUser = _userBloc.loggedUser;
+    final userBloc = BlocProvider.of<UserBloc>(context);
 
-    if (_receiver == null || loggedUser == null) {
+    if (_receiver == null || userBloc.loggedUser == null) {
       return Scaffold(
         body: Center(
           child: Text('Something went wrong 🤔'),
@@ -87,7 +86,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
 
                   return MessageList(
-                    loggedUser: _userBloc.loggedUser,
+                    loggedUser: userBloc.loggedUser,
                     messages: messages,
                   );
                 },
@@ -104,11 +103,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: _messageTextFieldController,
                       textCapitalization: TextCapitalization.sentences,
                       textInputAction: TextInputAction.send,
-                      onSubmitted: (value) => _sendMessage(_userBloc.loggedUser),
+                      onSubmitted: (value) => _sendMessage(userBloc.loggedUser),
                     ),
                   ),
                   FlatButton(
-                    onPressed: () => _sendMessage(_userBloc.loggedUser),
+                    onPressed: () => _sendMessage(userBloc.loggedUser),
                     child: Text(
                       'Send',
                       style: kSendButtonTextStyle,
