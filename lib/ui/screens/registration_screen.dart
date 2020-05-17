@@ -1,5 +1,7 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
@@ -15,10 +17,9 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  String _name;
-  String _email;
+  User _user = User();
   String _password;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
 
   final _formKey = GlobalKey<FormState>();
   FocusNode _emailFieldFocusNode;
@@ -63,7 +64,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                     TextFormField(
                       keyboardType: TextInputType.text,
                       onChanged: (value) {
-                        _name = value;
+                        _user.displayName = value;
                       },
                       decoration: kTextFieldDecoration.copyWith(
                         hintText: 'Enter your display name',
@@ -71,7 +72,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       validator: TextFormFieldValidator.empty('This field cannot be empty'),
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (value) {
-                        print('name submitted! $_emailFieldFocusNode');
                         FocusScope.of(context).requestFocus(_emailFieldFocusNode);
                       },
                       autofocus: true,
@@ -82,7 +82,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       keyboardType: TextInputType.emailAddress,
                       focusNode: _emailFieldFocusNode,
                       onChanged: (value) {
-                        _email = value;
+                        _user.email = value;
                       },
                       autocorrect: false,
                       decoration: kTextFieldDecoration.copyWith(
@@ -106,7 +106,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       ),
                       validator: TextFormFieldValidator.empty('Type your password'),
                       textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (value) => _handleRegisterSubmit(),
+                      onFieldSubmitted: (value) => _handleRegisterSubmit(context),
                     ),
                   ],
                 ),
@@ -134,7 +134,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
-  _handleRegisterSubmit() async {
+  _handleRegisterSubmit(BuildContext context) async {
     if (_formKey.currentState.validate() == false || _isLoading) {
       return;
     }
@@ -142,23 +142,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       _isLoading = true;
     });
     try {
-      await _register();
-      Navigator.pushNamed(context, ChatScreen.name);
+      await BlocProvider.of<UserBloc>(context).registerUser(_user, _password);
+      Navigator.popAndPushNamed(context, ChatScreen.name);
     } catch (e) {
-      print(e);
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  Future<void> _register() {
-    final userInfo = UserUpdateInfo();
-    userInfo.displayName = _name;
-
-    return _auth.createUserWithEmailAndPassword(
-      email: _email,
-      password: _password,
-    ).then((result) => result.user.updateProfile(userInfo));
   }
 }

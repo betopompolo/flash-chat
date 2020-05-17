@@ -1,8 +1,10 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
-import 'package:flash_chat/ui/screens/chat_screen.dart';
+import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -16,20 +18,25 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  String _email = '';
+  User _user = User();
   String _password = '';
+
   bool _loadingLogin = false;
   String _errorMessage;
 
   final _formKey = GlobalKey<FormState>();
   FocusNode _passwordFieldFocusNode;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
   @override
   void initState() {
     super.initState();
     _passwordFieldFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _passwordFieldFocusNode.dispose();
+    super.dispose();
   }
 
   @override
@@ -61,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: <Widget>[
                     Text(
                       _errorMessage ?? '',
-                      style: Theme.of(context).textTheme.body2.copyWith(
+                      style: Theme.of(context).textTheme.bodyText1.copyWith(
                         color: Theme.of(context).errorColor,
                       ),
                       textAlign: TextAlign.center,
@@ -87,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       autocorrect: false,
                       keyboardType: TextInputType.emailAddress,
                       onChanged: (value) {
-                        _email = value;
+                        _user.email = value;
                       },
                       validator:
                           TextFormFieldValidator.email('Type a valid email'),
@@ -111,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       textInputAction: TextInputAction.done,
                       focusNode: _passwordFieldFocusNode,
-                      onFieldSubmitted: (value) => _login(),
+                      onFieldSubmitted: (value) => _login(context),
                     ),
                   ],
                 ),
@@ -121,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               PrimaryButton(
                 text: 'Log In',
-                onTap: _login,
+                onTap: () => _login(context),
                 color: Theme.of(context).primaryColor,
                 loading: _loadingLogin,
               ),
@@ -132,13 +139,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  @override
-  void dispose() {
-    _passwordFieldFocusNode.dispose();
-    super.dispose();
-  }
-
-  void _login() async {
+  void _login(BuildContext context) async {
     if (_formKey.currentState.validate() == false || _loadingLogin) {
       return;
     }
@@ -147,9 +148,8 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _loadingLogin = true;
       });
-      await _auth.signInWithEmailAndPassword(
-          email: _email, password: _password);
-      Navigator.popAndPushNamed(context, ChatScreen.name);
+      await BlocProvider.of<UserBloc>(context).login(_user, _password);
+      Navigator.popAndPushNamed(context, ChatListScreen.name);
     } catch (error) {
       _showLoginErrorMessage(error.message);
       setState(() {
@@ -173,6 +173,5 @@ class _LoginScreenState extends State<LoginScreen> {
         });
       }
     );
-
   }
 }

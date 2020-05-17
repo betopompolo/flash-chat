@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
-import 'package:flash_chat/ui/screens/chat_screen.dart';
+import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flash_chat/ui/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -16,47 +20,17 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  final _auth = FirebaseAuth.instance;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _auth.currentUser().then((user) {
-      if (user != null) {
-        Navigator.pushNamed(context, ChatScreen.name);
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.0),
+        padding: EdgeInsets.symmetric(horizontal: 12.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Row(
-              children: <Widget>[
-                Hero(
-                  tag: AppLogo.tag,
-                  child: AppLogo(
-                    height: 60.0,
-                  ),
-                ),
-                TypewriterAnimatedTextKit(
-                  text: ['Flash Chat'],
-                  textStyle: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  speed: Duration(
-                    milliseconds: 500,
-                  ),
-                ),
-              ],
-            ),
+            _buildAppTitle(),
             SizedBox(
               height: 48.0,
             ),
@@ -79,6 +53,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       ),
     );
   }
+
+  Widget _buildAppTitle() {
+    return Row(
+      children: <Widget>[
+        Hero(
+          tag: AppLogo.tag,
+          child: AppLogo(
+            height: 60.0,
+          ),
+        ),
+        Expanded(
+          child: TypewriterAnimatedTextKit(
+            text: ['Flash Chat'],
+            textStyle: TextStyle(
+              fontSize: 45.0,
+              fontWeight: FontWeight.w900,
+            ),
+            speed: Duration(
+              milliseconds: 500,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }
-
-
