@@ -45,7 +45,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         stream: _chatBloc.chatStream,
         initialData: null,
         builder: (context, snapshot) {
-          if (snapshot.hasError) {
+          if (snapshot.hasError || loggedUser == null) {
             return Center(
               child: Text('Something went wrong 😱'),
             );
@@ -70,10 +70,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
               Expanded(
                 child: ListView.separated(
                   itemBuilder: (context, index) {
-                    // TODO: fix logged user hot reload
-                    if (loggedUser == null) {
-                      return Container();
-                    }
                     final chat = chats[index];
                     final displayUser = _getDisplayUser(chat, loggedUser);
 
