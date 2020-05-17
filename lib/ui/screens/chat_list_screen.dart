@@ -27,7 +27,6 @@ class _ChatListScreenState extends State<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     User loggedUser = BlocProvider.of<UserBloc>(context).loggedUser;
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -44,7 +43,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
       ),
       body: StreamBuilder<List<Chat>>(
         stream: _chatBloc.chatStream,
-        initialData: [],
+        initialData: null,
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -71,6 +70,10 @@ class _ChatListScreenState extends State<ChatListScreen> {
               Expanded(
                 child: ListView.separated(
                   itemBuilder: (context, index) {
+                    // TODO: fix logged user hot reload
+                    if (loggedUser == null) {
+                      return Container();
+                    }
                     final chat = chats[index];
                     final displayUser = _getDisplayUser(chat, loggedUser);
 

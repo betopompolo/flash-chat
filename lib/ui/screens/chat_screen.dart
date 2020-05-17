@@ -62,7 +62,6 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: _buildAppBar(),
       body: SafeArea(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Expanded(

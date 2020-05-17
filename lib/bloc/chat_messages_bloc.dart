@@ -13,20 +13,20 @@ class ChatMessagesBloc with Bloc {
 
   final _chatStreamController = StreamController<List<Chat>>();
   get chatStream => _chatStreamController.stream;
-  StreamSubscription<List<Chat>> _chatStreamListener;
+  StreamSubscription<List<Chat>> _chatStreamSubscription;
 
   final _chatMessageStreamController = StreamController<List<Message>>();
   get messageStream => _chatMessageStreamController.stream;
   StreamSubscription<List<Message>> _chatMessageSubscription;
 
   ChatMessagesBloc() {
-    _chatStreamListener = _chatRepository.listChatStream().listen(_handleChatStream);
+    _chatStreamSubscription = _chatRepository.listChatStream().listen(_handleChatStream);
   }
 
   @override
   void dispose() {
-    _chatMessageSubscription.cancel();
-    _chatStreamListener.cancel();
+    _chatMessageSubscription?.cancel();
+    _chatStreamSubscription?.cancel();
     _chatStreamController.close();
     _chatMessageStreamController.close();
   }
