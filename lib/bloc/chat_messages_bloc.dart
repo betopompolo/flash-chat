@@ -16,7 +16,7 @@ class ChatMessagesBloc with Bloc {
   StreamSubscription<List<Chat>> _chatStreamListener;
 
   final _chatMessageStreamController = StreamController<List<Message>>();
-  get messageStream => _chatMessageStreamController.stream.asBroadcastStream();
+  get messageStream => _chatMessageStreamController.stream;
   StreamSubscription<List<Message>> _chatMessageSubscription;
 
   ChatMessagesBloc() {

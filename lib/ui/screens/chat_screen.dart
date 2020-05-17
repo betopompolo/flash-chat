@@ -41,8 +41,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
-    _chatMessagesBloc.dispose();
     super.dispose();
+    _chatMessagesBloc.dispose();
   }
 
   @override
@@ -51,6 +51,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (_receiver == null || userBloc.loggedUser == null) {
       return Scaffold(
+        appBar: _buildAppBar(),
         body: Center(
           child: Text('Something went wrong 🤔'),
         ),
@@ -58,9 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('${_receiver.displayName}'),
-      ),
+      appBar: _buildAppBar(),
       body: SafeArea(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -121,6 +120,10 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
+  _buildAppBar() => AppBar(
+    title: Text('${_receiver.displayName}'),
+  );
 
   _sendMessage(User loggedUser) async {
     final message = Message(
