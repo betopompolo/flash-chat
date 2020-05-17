@@ -1,12 +1,6 @@
-import 'dart:async';
-
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flash_chat/bloc/user.dart';
-import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
-import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
-import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flash_chat/ui/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 
