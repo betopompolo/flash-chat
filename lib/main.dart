@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
@@ -21,27 +19,14 @@ class FlashChatApp extends StatefulWidget {
   _FlashChatAppState createState() => _FlashChatAppState();
 }
 
-class _FlashChatAppState extends State<FlashChatApp> with WidgetsBindingObserver {
-  ThemeData _appTheme;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    _appTheme = _getTheme();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    super.dispose();
-  }
+class _FlashChatAppState extends State<FlashChatApp> {
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<UserBloc>(
       child: MaterialApp(
-        theme: _appTheme,
+        theme: lightTheme,
+        darkTheme: darkTheme,
         initialRoute: WelcomeScreen.name,
         routes: {
           ChatScreen.name: (context) => ChatScreen(),
@@ -51,21 +36,9 @@ class _FlashChatAppState extends State<FlashChatApp> with WidgetsBindingObserver
           NewChatScreen.name: (context) => NewChatScreen(),
           ChatListScreen.name: (context) => ChatListScreen(),
         },
+        themeMode: ThemeMode.system,
       ),
       bloc: UserBloc(),
     );
-  }
-
-  _getTheme() {
-    final isPlatformUsingDarkTheme = WidgetsBinding.instance.window.platformBrightness == Brightness.dark;
-    return isPlatformUsingDarkTheme ? darkTheme : lightTheme;
-  }
-
-  @override
-  void didChangePlatformBrightness() {
-    super.didChangePlatformBrightness();
-    setState(() {
-      _appTheme = _getTheme();
-    });
   }
 }
