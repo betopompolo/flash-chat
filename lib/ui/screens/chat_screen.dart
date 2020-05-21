@@ -30,12 +30,17 @@ class _ChatScreenState extends State<ChatScreen> {
 
   ChatScreenArgs get _screenArgs => ModalRoute.of(context).settings.arguments;
   User get _receiver => _screenArgs.chat.participants[0];
+  User _loggedUser;
 
   @override
   void initState() {
     super.initState();
     Future.delayed(Duration.zero, () {
       _chatMessagesBloc.setChatMessage(_screenArgs.chat);
+
+      this.setState(() {
+        _loggedUser = BlocProvider.of<UserBloc>(context).loggedUser;
+      });
     });
   }
 
@@ -47,9 +52,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userBloc = BlocProvider.of<UserBloc>(context);
-
-    if (_receiver == null || userBloc.loggedUser == null) {
+    if (_receiver == null || _loggedUser == null) {
       return Scaffold(
         appBar: _buildAppBar(),
         body: Center(
@@ -84,7 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
 
                   return MessageList(
-                    loggedUser: userBloc.loggedUser,
+                    loggedUser: _loggedUser,
                     messages: messages,
                   );
                 },
@@ -101,11 +104,11 @@ class _ChatScreenState extends State<ChatScreen> {
                       controller: _messageTextFieldController,
                       textCapitalization: TextCapitalization.sentences,
                       textInputAction: TextInputAction.send,
-                      onSubmitted: (value) => _sendMessage(userBloc.loggedUser),
+                      onSubmitted: (value) => _sendMessage(_loggedUser),
                     ),
                   ),
                   FlatButton(
-                    onPressed: () => _sendMessage(userBloc.loggedUser),
+                    onPressed: () => _sendMessage(_loggedUser),
                     child: Text(
                       'Send',
                       style: kSendButtonTextStyle,

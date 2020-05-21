@@ -4,7 +4,6 @@ import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
-import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -149,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
         _loadingLogin = true;
       });
       await BlocProvider.of<UserBloc>(context).login(_user, _password);
-      Navigator.popAndPushNamed(context, ChatListScreen.name);
+      Navigator.pop(context);
     } catch (error) {
       _showLoginErrorMessage(error.message);
       setState(() {
@@ -164,9 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     Future.delayed(
-      Duration(
-        seconds: 5,
-      ),
+      Duration(seconds: 5),
       () {
         setState(() {
           _errorMessage = null;

@@ -72,9 +72,10 @@ class ChatMessagesBloc with Bloc {
     if (participants.isEmpty) {
       return null;
     }
+    final loggedUser = _userBloc.loggedUser;
 
-    if (includeLoggedUser && _userBloc.loggedUser != null) {
-      participants.add(_userBloc.loggedUser);
+    if (includeLoggedUser && loggedUser != null) {
+      participants.add(loggedUser);
     }
 
     Chat newChat = Chat(

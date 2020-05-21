@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
+import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
+import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flash_chat/ui/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -14,6 +19,26 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
+  StreamSubscription _authSub;
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      final userBloc = BlocProvider.of<UserBloc>(context);
+      _authSub = userBloc.authUserStream.listen((user) {
+        if (user != null) {
+          Navigator.pushNamed(context, ChatListScreen.name);
+        }
+      });
+    });
+  }
+  
+  @override
+  void dispose() {
+    _authSub.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

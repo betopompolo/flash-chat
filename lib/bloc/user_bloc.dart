@@ -3,19 +3,20 @@ import 'dart:async';
 import 'package:flash_chat/bloc/bloc.dart';
 import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/resources/user_repository.dart';
+import 'package:rxdart/rxdart.dart';
+import 'package:rxdart/subjects.dart';
 
 class UserBloc with Bloc {
   final _userRepository = UserRepository();
 
-  final _authUserController = StreamController<User>();
-  Stream<User> get authUserStream => _authUserController.stream.asBroadcastStream();
+  final _authUserController = BehaviorSubject<User>();
+  ValueStream<User> get authUserStream => _authUserController.stream;
   StreamSubscription<User> _authUserStreamSubscription;
 
   final _searchStreamController = StreamController<List<User>>();
   Stream<List<User>> get searchStream =>_searchStreamController.stream;
 
-  User _loggedUser;
-  User get loggedUser => _loggedUser;
+  User get loggedUser => authUserStream.value;
 
   UserBloc() {
     _authUserStreamSubscription = _userRepository.getAuthUserStream().listen(_handleAuthUserStream);
@@ -23,12 +24,10 @@ class UserBloc with Bloc {
 
   _handleAuthUserStream(User authUser) async {
     if (authUser == null) {
-      _loggedUser = null;
       return;
     }
 
     final user = await _userRepository.getByEmail(authUser.email);
-    _loggedUser = user;
     _authUserController.sink.add(user);
   }
 
@@ -38,9 +37,14 @@ class UserBloc with Bloc {
 
   Future logout() => _userRepository.logout();
 
-  Future<User> registerUser(User user, String password) async {
+  Future<User> registerUser(User user, String password, { loginAfterRegister = false }) async {
     final createdUser = await _userRepository.createUser(user, password);
-    return _userRepository.saveInFirestore(createdUser);
+    final userDetails = await _userRepository.saveInFirestore(createdUser);
+    if (loginAfterRegister) {
+      _authUserController.sink.add(userDetails);
+    }
+
+    return userDetails;
   }
 
   search(User user) async {

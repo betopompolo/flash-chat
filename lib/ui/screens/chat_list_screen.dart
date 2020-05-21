@@ -17,6 +17,7 @@ class ChatListScreen extends StatefulWidget {
 
 class _ChatListScreenState extends State<ChatListScreen> {
   final _chatBloc = ChatMessagesBloc();
+  User _loggedUser;
 
   @override
   void dispose() {
@@ -25,8 +26,17 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () {
+      setState(() {
+        _loggedUser = BlocProvider.of<UserBloc>(context).loggedUser;
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    User loggedUser = BlocProvider.of<UserBloc>(context).loggedUser;
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -45,21 +55,16 @@ class _ChatListScreenState extends State<ChatListScreen> {
         stream: _chatBloc.chatStream,
         initialData: null,
         builder: (context, snapshot) {
-          if (snapshot.hasError || loggedUser == null) {
+          if (snapshot.hasError || _loggedUser == null) {
+            final message = _loggedUser == null ? 'No logged user 😑' : 'Something went wrong 😱';
             return Center(
-              child: Text('Something went wrong 😱'),
+              child: Text(message),
             );
           }
 
-          if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+          List<Chat> chats = snapshot.data?.reversed?.toList();
 
-          List<Chat> chats = snapshot.data.reversed.toList();
-
-          if (chats.isEmpty) {
+          if (chats == null || chats.isEmpty) {
             return Center(
               child: Text('Click on the + icon to start a chat'),
             );
@@ -71,7 +76,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                 child: ListView.separated(
                   itemBuilder: (context, index) {
                     final chat = chats[index];
-                    final displayUser = _getDisplayUser(chat, loggedUser);
+                    final displayUser = _getDisplayUser(chat, _loggedUser);
 
                     return ListTile(
                       title: Text(displayUser.displayName),

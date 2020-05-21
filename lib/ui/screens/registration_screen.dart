@@ -4,7 +4,6 @@ import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';
-import 'package:flash_chat/ui/screens/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 import '../styles.dart';
@@ -116,7 +115,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               ),
               PrimaryButton(
                 text: 'Register',
-                onTap: _handleRegisterSubmit,
+                onTap: () => _handleRegisterSubmit(context),
                 color: Theme.of(context).primaryColor,
                 loading: _isLoading,
               ),
@@ -135,15 +134,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   _handleRegisterSubmit(BuildContext context) async {
+    final userBloc = BlocProvider.of<UserBloc>(context);
     if (_formKey.currentState.validate() == false || _isLoading) {
       return;
     }
     setState(() {
       _isLoading = true;
+      FocusScope.of(context).unfocus();
     });
     try {
-      await BlocProvider.of<UserBloc>(context).registerUser(_user, _password);
-      Navigator.popAndPushNamed(context, ChatScreen.name);
+      await userBloc.registerUser(_user, _password, loginAfterRegister: true);
+      Navigator.pop(context);
     } catch (e) {
       setState(() {
         _isLoading = false;
