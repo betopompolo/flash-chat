@@ -46,7 +46,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => Navigator.pushNamed(context, NewChatScreen.name),
+            onPressed: () => _createNewChat(context),
           ),
         ],
         title: Text('Chat List'),
@@ -132,5 +132,17 @@ class _ChatListScreenState extends State<ChatListScreen> {
 
   _logout() {
     Navigator.pop(context);
+  }
+
+  _createNewChat(BuildContext context) async {
+    print('creating chat...');
+    final newChat = await Navigator.pushNamed(context, NewChatScreen.name);
+    print('newChat is null? ${newChat == null}');
+
+    if (newChat is Chat) {
+      Navigator.pushNamed(context, ChatScreen.name, arguments: ChatScreenArgs(
+        chat: newChat
+      ));
+    }
   }
 }

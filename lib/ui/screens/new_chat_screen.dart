@@ -3,7 +3,6 @@ import 'package:flash_chat/bloc/chat_messages_bloc.dart';
 import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/bloc/user_bloc.dart';
 import 'package:flash_chat/ui/components/bloc_provider.dart';
-import 'package:flash_chat/ui/screens/chat_screen.dart';
 import 'package:flash_chat/ui/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -34,10 +33,7 @@ class _NewChatScreenState extends State<NewChatScreen> {
     Chat newChat = await _chatMessagesBloc.createChat([
       receiver,
     ]);
-    ChatScreenArgs args = ChatScreenArgs(
-      chat: newChat,
-    );
-    Navigator.popAndPushNamed(context, ChatScreen.name, arguments: args);
+    Navigator.pop(context, newChat);
   }
 }
 
