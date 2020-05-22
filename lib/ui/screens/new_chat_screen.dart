@@ -71,6 +71,7 @@ class _UserSearchState extends State<UserSearch> {
                 email: _searchTextFieldController.text,
               ));
             },
+            textCapitalization: TextCapitalization.sentences,
             textInputAction: TextInputAction.search,
             controller: _searchTextFieldController,
           ),

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flash_chat/bloc/chat.dart';
 import 'package:flash_chat/bloc/message.dart';
+import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/resources/chat_mapper.dart';
 import 'package:flash_chat/resources/message_mapper.dart';
 
@@ -31,9 +32,10 @@ class ChatRepository {
     return message;
   }
 
-  Stream<List<Chat>> listChatStream() {
+  Stream<List<Chat>> chatListStream(User user) {
     return _firestore
         .collection(_chatCollection)
+        .where('participants_ids', arrayContains: user.id)
         .snapshots()
         .map(ChatMapper.mapQuerySnapshot);
   }

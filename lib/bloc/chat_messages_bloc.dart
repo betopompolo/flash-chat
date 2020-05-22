@@ -19,16 +19,20 @@ class ChatMessagesBloc with Bloc {
   get messageStream => _chatMessageStreamController.stream;
   StreamSubscription<List<Message>> _chatMessageSubscription;
 
-  ChatMessagesBloc() {
-    _chatStreamSubscription = _chatRepository.listChatStream().listen(_handleChatStream);
-  }
-
   @override
   void dispose() {
     _chatMessageSubscription?.cancel();
     _chatStreamSubscription?.cancel();
     _chatStreamController.close();
     _chatMessageStreamController.close();
+  }
+
+  setChatStreamForUser(User user) {
+    if (_chatStreamSubscription != null) {
+      _chatStreamSubscription.cancel();
+    }
+
+    _chatStreamSubscription = _chatRepository.chatListStream(user).listen(_handleChatStream);
   }
 
   _handleChatStream(List<Chat> chats) async {

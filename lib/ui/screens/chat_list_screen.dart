@@ -31,6 +31,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     Future.delayed(Duration.zero, () {
       setState(() {
         _loggedUser = BlocProvider.of<UserBloc>(context).loggedUser;
+        _chatBloc.setChatStreamForUser(_loggedUser);
       });
     });
   }
@@ -135,9 +136,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
   }
 
   _createNewChat(BuildContext context) async {
-    print('creating chat...');
     final newChat = await Navigator.pushNamed(context, NewChatScreen.name);
-    print('newChat is null? ${newChat == null}');
 
     if (newChat is Chat) {
       Navigator.pushNamed(context, ChatScreen.name, arguments: ChatScreenArgs(
