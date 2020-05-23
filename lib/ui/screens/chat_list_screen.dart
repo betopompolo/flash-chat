@@ -139,7 +139,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
     final newChat = await Navigator.pushNamed(context, NewChatScreen.name);
 
     if (newChat is Chat) {
-      Navigator.pushNamed(context, ChatScreen.name, arguments: ChatScreenArgs(
+      await Navigator.pushNamed(context, ChatScreen.name, arguments: ChatScreenArgs(
         chat: newChat
       ));
     }
