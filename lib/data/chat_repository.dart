@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flash_chat/bloc/chat.dart';
 import 'package:flash_chat/bloc/message.dart';
 import 'package:flash_chat/bloc/user.dart';
-import 'package:flash_chat/resources/chat_mapper.dart';
-import 'package:flash_chat/resources/message_mapper.dart';
+
+import 'chat_mapper.dart';
+import 'message_mapper.dart';
 
 class ChatRepository {
   Firestore get _firestore => Firestore.instance;

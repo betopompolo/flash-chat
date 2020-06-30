@@ -5,7 +5,7 @@ import 'package:flash_chat/bloc/chat.dart';
 import 'package:flash_chat/bloc/message.dart';
 import 'package:flash_chat/bloc/user.dart';
 import 'package:flash_chat/bloc/user_bloc.dart';
-import 'package:flash_chat/resources/chat_repository.dart';
+import 'package:flash_chat/data/chat_repository.dart';
 
 class ChatMessagesBloc with Bloc {
   final _chatRepository = ChatRepository();

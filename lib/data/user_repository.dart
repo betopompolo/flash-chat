@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flash_chat/bloc/user.dart';
-import 'package:flash_chat/resources/user_mapper.dart';
+import 'package:flash_chat/data/user_mapper.dart';
 
 class UserRepository {
   FirebaseAuth get _fireAuth => FirebaseAuth.instance;
