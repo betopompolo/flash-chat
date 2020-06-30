@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flash_chat/bloc/chat.dart';
-import 'package:flash_chat/bloc/message.dart';
-import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/domain/chat.dart';
+import 'package:flash_chat/domain/message.dart';
+import 'package:flash_chat/domain/user.dart';
 
 import 'chat_mapper.dart';
 import 'message_mapper.dart';
 
+// TODO: Create a 'MessageRepository'
 class ChatRepository {
   Firestore get _firestore => Firestore.instance;
   final _chatCollection = 'chat';

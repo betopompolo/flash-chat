@@ -1,4 +1,4 @@
-import 'package:flash_chat/bloc/user_bloc.dart';
+import 'package:flash_chat/domain/user_bloc.dart';
 import 'package:flash_chat/ui/screens/chat_list_screen.dart';
 import 'package:flash_chat/ui/screens/chat_screen.dart';
 import 'package:flash_chat/ui/screens/login_screen.dart';

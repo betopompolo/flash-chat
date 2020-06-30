@@ -1,7 +1,7 @@
 // Bloc provider based on Ray Wenderlich's tutorial
 // https://www.raywenderlich.com/4074597-getting-started-with-the-bloc-pattern
 
-import 'package:flash_chat/bloc/bloc.dart';
+import 'package:flash_chat/domain/bloc.dart';
 import 'package:flutter/widgets.dart';
 
 class BlocProvider<T extends Bloc> extends StatefulWidget {

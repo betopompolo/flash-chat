@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flash_chat/bloc/chat.dart';
-import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/domain/chat.dart';
+import 'package:flash_chat/domain/user.dart';
 
 class ChatMapper {
   static Map<String, dynamic> mapToFirestore(Chat chat) {

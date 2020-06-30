@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/domain/user.dart';
 
 class UserMapper {
   static User mapFirebaseUser(FirebaseUser user) {

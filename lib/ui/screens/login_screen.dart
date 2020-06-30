@@ -1,5 +1,5 @@
-import 'package:flash_chat/bloc/user.dart';
-import 'package:flash_chat/bloc/user_bloc.dart';
+import 'package:flash_chat/domain/user.dart';
+import 'package:flash_chat/domain/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/form_field_validators.dart';

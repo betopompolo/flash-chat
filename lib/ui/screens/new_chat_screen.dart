@@ -1,7 +1,7 @@
-import 'package:flash_chat/bloc/chat.dart';
-import 'package:flash_chat/bloc/chat_messages_bloc.dart';
-import 'package:flash_chat/bloc/user.dart';
-import 'package:flash_chat/bloc/user_bloc.dart';
+import 'package:flash_chat/domain/chat.dart';
+import 'package:flash_chat/domain/chat_messages_bloc.dart';
+import 'package:flash_chat/domain/user.dart';
+import 'package:flash_chat/domain/user_bloc.dart';
 import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/styles.dart';
 import 'package:flutter/material.dart';

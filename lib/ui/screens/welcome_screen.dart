@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flash_chat/bloc/user_bloc.dart';
+import 'package:flash_chat/domain/user_bloc.dart';
 import 'package:flash_chat/ui/components/app_logo.dart';
 import 'package:flash_chat/ui/components/bloc_provider.dart';
 import 'package:flash_chat/ui/components/primary_button.dart';

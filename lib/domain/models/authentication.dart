@@ -1,0 +1,4 @@
+enum SignInOption {
+  Google,
+  Apple,
+}

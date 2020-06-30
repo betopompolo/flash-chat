@@ -1,10 +1,10 @@
 import 'dart:async';
 
-import 'package:flash_chat/bloc/bloc.dart';
-import 'package:flash_chat/bloc/chat.dart';
-import 'package:flash_chat/bloc/message.dart';
-import 'package:flash_chat/bloc/user.dart';
-import 'package:flash_chat/bloc/user_bloc.dart';
+import 'package:flash_chat/domain/bloc.dart';
+import 'package:flash_chat/domain/chat.dart';
+import 'package:flash_chat/domain/message.dart';
+import 'package:flash_chat/domain/user.dart';
+import 'package:flash_chat/domain/user_bloc.dart';
 import 'package:flash_chat/data/chat_repository.dart';
 
 class ChatMessagesBloc with Bloc {

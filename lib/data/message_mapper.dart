@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flash_chat/bloc/message.dart';
-import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/domain/message.dart';
+import 'package:flash_chat/domain/user.dart';
 
 class MessageMapper {
 

@@ -1,4 +1,4 @@
-import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/domain/user.dart';
 
 class Chat {
   String id;

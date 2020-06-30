@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flash_chat/bloc/bloc.dart';
-import 'package:flash_chat/bloc/user.dart';
+import 'package:flash_chat/domain/bloc.dart';
+import 'package:flash_chat/domain/user.dart';
 import 'package:flash_chat/data/user_repository.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/subjects.dart';
